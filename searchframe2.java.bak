@@ -1,0 +1,392 @@
+import javax.swing.*;
+import javax.swing.table.*;
+import java.io.*;
+import javax.swing.event.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.table.TableColumn;
+import java.util.*;
+ class searchframe2 extends  JFrame implements ActionListener,ListSelectionListener,MouseListener ,MouseMotionListener,KeyListener 
+{
+	String[] columnNames = {"Name","Path","type","Size"};
+	String found[]=new String[10];
+	String path,name;
+	int fcount=0;
+	Vector rows=new Vector();
+	Vector columns= new Vector();
+	ImageIcon bannericon=new ImageIcon("banner.gif");
+	JPanel inputpanel=new JPanel();
+	JPanel mainpanel=new JPanel();
+	JPanel buttonpanel=new JPanel();
+	JPanel leftpanel=new JPanel();
+	JPanel textpanel=new JPanel();
+	JPanel textpanel1=new JPanel();
+	JPanel resultpanel=new JPanel();
+	JPanel labelpanel=new JPanel();
+	
+	JButton searchnow,stopsearch;
+	JTextField tsearch,tdrive;
+	JTable t1;
+	DefaultTableModel myModel;
+	JSplitPane splitPane,splitPane1;
+	int vert=ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
+	int hor=ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
+	JScrollPane scrollPane;
+	JLabel selectedname,selectedpath;
+	searchframe2()
+	{
+	super("SEARCH");
+	 getContentPane().setLayout(new BorderLayout());
+	inputpanel.setLayout(new GridLayout(7,1));
+	labelpanel.setLayout(new GridLayout(2,1));
+	JLabel j1=new JLabel(bannericon);
+    getContentPane().add(j1,BorderLayout.NORTH);
+	myModel = new DefaultTableModel(columnNames,0);
+	t1 = new JTable(myModel);
+    t1.setPreferredScrollableViewportSize(new Dimension(500, 70));
+	t1.setCellSelectionEnabled(true);
+	t1.setRowHeight(25);
+	t1.setColumnSelectionAllowed(false);
+	
+	
+    //t1.setBackground(Color.red);
+	
+   
+	t1.setGridColor(Color.blue);
+	t1.setShowVerticalLines(false);
+    t1.setShowHorizontalLines(false); 
+	t1.setSelectionForeground(Color.blue);
+	TableCellRenderer headerRenderer = t1.getTableHeader().
+                getDefaultRenderer();
+	//t1.setEnabled(false);
+	ListSelectionModel listMod =  t1.getSelectionModel();
+   listMod.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+   listMod.addListSelectionListener(this);
+   
+   
+   JScrollPane scrollPane = new JScrollPane(t1);
+
+	//resultpanel.add(scrollPane);
+	inputpanel.add(new JLabel("        Search for files or Folders named"));
+	tsearch=new JTextField(12);
+	textpanel.add(tsearch);
+	tdrive=new 	JTextField(12);
+	textpanel1.add(tdrive);
+	inputpanel.add(textpanel);
+    inputpanel.add(new JLabel("         look in"));
+	inputpanel.add(textpanel1);
+	searchnow=new JButton("Search Now");
+	stopsearch=new JButton("Stop Search");
+	stopsearch.setEnabled(false);
+	buttonpanel.add(searchnow);
+	buttonpanel.add(stopsearch);
+	inputpanel.add(buttonpanel);
+	selectedname=new JLabel("");
+	selectedpath=new JLabel("");
+	Color c=new Color(83,83,255);
+	selectedpath.setForeground(c);
+    labelpanel.add(selectedname);
+	labelpanel.add(selectedpath);
+	resultpanel.add(labelpanel);
+	leftpanel.add(inputpanel);
+
+	resultpanel.setMinimumSize(new Dimension(70, 70));
+	splitPane1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+                                   resultpanel,scrollPane);
+	splitPane1.setDividerSize(7);
+   
+    splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                                   leftpanel,splitPane1);
+    splitPane.setDividerSize(7);
+    splitPane.setOneTouchExpandable(true);
+    splitPane.setContinuousLayout(true);
+    //inputpanel.setMinimumSize(new Dimension(50, 50));   
+    getContentPane().add(splitPane, BorderLayout.CENTER);
+        
+	//System.out.println("no of items found :"+d.fcount);
+	setcolor();
+	setSize(720,600);
+	setVisible(true);
+	searchnow.addActionListener(this);
+	stopsearch.addActionListener(this);
+	selectedpath.addMouseListener(this);
+	selectedpath.addMouseMotionListener(this);
+	tdrive.addKeyListener(this);
+	 
+	
+	} 
+	public void keyTyped(KeyEvent e) {}
+   public void keyReleased(KeyEvent e) {}
+   public void keyPressed(KeyEvent e) {
+     int key = e.getKeyCode();
+     if (key == KeyEvent.VK_ENTER) {
+      System.out.println("enter");
+        }
+     }
+ public boolean isCellEditable(int row, int col) {
+            //Note that the data/cell address is constant,
+            //no matter where the cell appears onscreen.
+            
+                return false;
+           
+        }
+
+		void setcolor()
+	 {
+		Color c=new Color(198,211,222);
+		Color c1=new Color(224,226,228);
+  
+	 	getContentPane().setBackground(c);  
+		inputpanel.setBackground(Color.white);  
+		leftpanel.setBackground(Color.white);
+		mainpanel.setBackground(Color.white);  
+		textpanel.setBackground(Color.white);  
+		textpanel1.setBackground(Color.white);  
+		buttonpanel.setBackground(Color.white);  
+		splitPane.setBackground(Color.white);
+		resultpanel.setBackground(Color.white);
+		labelpanel.setBackground(Color.white);
+		tsearch.setBackground(c1);
+		tdrive.setBackground(c1);
+	}
+	private static void createAndShowGUI() {
+        
+        JFrame.setDefaultLookAndFeelDecorated(true);
+        searchframe2 frame=new searchframe2();
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+	public static void main(String[] args) 
+	{
+		createAndShowGUI();
+	}
+public void actionPerformed(ActionEvent ae) 
+	{
+        splitPane.resetToPreferredSizes();
+		if(ae.getSource()==searchnow)
+		{
+			
+			stopsearch.setEnabled(true);
+			searchnow.setEnabled(false);
+			for(int i=0;i<fcount;i++)
+			myModel.removeRow(0);
+			fcount=0;
+			String s1=tdrive.getText();
+			String sfile=tsearch.getText();
+	if(sfile.endsWith(".*"))
+    sfile=sfile.toLowerCase().substring(0,sfile.indexOf("."));
+ 
+			 try{
+	    if (s1.length() > 0)
+	      {
+            System.out.println("recursive Dir from " + s1);
+            recurseInDirFrom(s1,sfile);
+            System.out.println("end");
+          
+		  }
+	   }
+	   catch(Exception e)
+	 {
+  System.out.println(e);
+          
+	 }
+	 
+		searchnow.setEnabled(true);
+		stopsearch.setEnabled(false);
+		}
+		if(ae.getSource()==stopsearch)
+		{
+          searchnow.setEnabled(true);
+		  stopsearch.setEnabled(false);
+		  Thread.currentThread().stop();
+		}
+    }
+
+public void recurseInDirFrom(String dirItem,String sfile) throws Exception {    
+  File file;
+  String tfile,ufile,search,usearch,startwith;
+  String list[];
+  int ext=sfile.indexOf(".");
+  String strfile=sfile;
+   file = new File(dirItem);
+   getlength len=new getlength();
+   if (file.isDirectory()) 
+	  {
+
+	   if(dirItem.equals(sfile)){
+	   found[0]=sfile;
+	   found[1]=dirItem;
+	   found[2]="";
+	   found[3]="File Folder";
+	   addRow();
+	  // System.out.println(sfile+"   "+dirItem);  
+	    fcount++;
+	 myModel.addRow(found);
+	 //t1.addNotify();
+				  repaint();
+			
+	   }
+	list = file.list();
+    for (int i = 0; i < list.length; i++)
+	  {
+		String type;
+		if(list[i].endsWith("System Volume Information"))
+		continue;
+		recurseInDirFrom
+       (dirItem + File.separatorChar + list[i],sfile);
+		if(list[i].indexOf('.')>0)
+		type=list[i].substring(list[i].indexOf(".")+1,list[i].length())+" File";
+	     else
+			 type="File Folder";
+	   if(ext<0)
+		  {
+	      if(sfile.indexOf("*")>=0)
+			  {
+				strfile=sfile.substring(0,sfile.indexOf("*"));
+			  if((list[i].toLowerCase().startsWith(strfile.toLowerCase())))
+				  {
+				 found[0]=list[i];
+	             found[1]=dirItem;
+				found[2]=type;
+				 if(list[i].indexOf('.')<0)
+				  found[3]="";
+				 else{
+	   		double flength=len.len(dirItem,list[i]);
+		       	 found[3]=""+flength+"KB";}
+				 fcount++;
+				myModel.addRow(found);
+			//	  t1.addNotify();
+				  repaint();
+			  //    System.out.println(list[i] +"   "+dirItem);                    
+				  }
+			  }
+			else if((list[i].toLowerCase().lastIndexOf(strfile.toLowerCase()))>=0)
+			  {
+	          found[0]=list[i];
+	          found[1]=dirItem;
+			  found[2]=type;
+				 if(list[i].indexOf('.')<0)
+				  found[3]="";
+				 else{
+	   		double flength=len.len(dirItem,list[i]);
+		       	found[3]=""+flength+"KB";}
+			  fcount++;
+			 myModel.addRow(found);
+			//	  t1.addNotify();
+				  repaint();
+		//	  System.out.println(list[i] +"   "+dirItem);                    
+			  }
+		  }
+		  else 
+		  {
+			 if(strfile.indexOf('*')>=0)
+			  {
+		   startwith=strfile.substring(0,strfile.indexOf("*"));             
+		   startwith=startwith.toLowerCase();
+		   search=list[i].substring(list[i].indexOf(".")+1,list[i].length());     
+			search=search.toLowerCase();
+			usearch=strfile.substring(strfile.indexOf(".")+1,strfile.length());     
+			 
+			  if(list[i].toLowerCase().startsWith(startwith))
+				  {
+					if(usearch.equalsIgnoreCase(search))
+					  {
+				 found[0]=list[i];
+	             found[1]=dirItem;
+				 found[2]=type;
+				 if(list[i].indexOf('.')<0)
+				  found[3]="";
+				 else{
+	   		double flength=len.len(dirItem,list[i]);
+		       	found[3]=""+flength+"KB";}
+				 fcount++;
+				myModel.addRow(found);
+			//	  t1.addNotify();
+				  repaint();
+			//    System.out.println(list[i] +"   "+dirItem);                    
+					 }
+			      }
+				
+			 }
+			 else if(strfile.equalsIgnoreCase(list[i]))
+			  {
+				 found[0]=list[i];
+	             found[1]=dirItem;
+				 found[2]=type;
+				 if(list[i].indexOf('.')<0)
+				  found[3]="";
+				 else{
+	   			double flength=len.len(dirItem,list[i]);
+		      	 found[3]=""+flength+"KB";}
+				 fcount++;
+				  myModel.addRow(found);
+			//	  t1.addNotify();
+				  repaint();
+			  }
+			  
+		  }
+
+	  
+	 
+        }
+     }
+	  	
+ }
+ 
+public void addRow()//Add Row
+{
+System.out.println("addRow()");
+//Vector r=new Vector();
+//r=createBlankElement();
+//System.out.println(r);
+myModel.addRow(found);
+
+
+t1.addNotify();
+repaint();
+}
+public void valueChanged(ListSelectionEvent e) 
+	{
+	ListSelectionModel lsm = (ListSelectionModel)e.getSource();   
+    int row=lsm.getMinSelectionIndex();
+	path = (String)myModel.getValueAt(row,1);
+	name=(String)myModel.getValueAt(row,0);
+	selectedname.setText(name);
+	selectedpath.setText("In Folder : "+path);
+	}
+
+public void mouseClicked(MouseEvent me)
+	{
+		
+		path="explorer.exe  "+path+"\\"+name;
+		open file=new open(path); 
+		/*int col=t1.getSelectedColumn();
+		int row=t1.getSelectedRow();*/
+		System.out.println("dfdgdf");
+
+
+	}
+	
+	public void mouseEntered(MouseEvent me)
+	{
+	}
+public void mouseExited(MouseEvent me)
+	{
+	}
+	public void mousePressed(MouseEvent me)
+	{
+	}
+	public void mouseReleased(MouseEvent me)
+	{
+	}
+	public void mouseMoved(MouseEvent me)
+	{
+	selectedpath.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	}
+	public void mouseDragged(MouseEvent me)
+	{
+	}
+	
+}
